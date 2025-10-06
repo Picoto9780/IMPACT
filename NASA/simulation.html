@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="img/logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/logo.png">
+
+    <link rel="shortcut icon" href="img/logo.png" type="image/png">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="img/logo.png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact - Simulation</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Exo+2:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
+    <link href="tooplate-neural-style.css" rel="stylesheet">
+    
+    <style>
+        /* ==================================================
+        MODIFICATIONS POUR LE CONTENU PRINCIPAL MASQUÉ (Ajouté)
+        ================================================== */
+        
+        /* Le contenu principal (navbar + main + footer) */
+        #navbar, #main-content, .footer-bottom {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease, visibility 0s linear 1s; /* Délai pour visibility */
+        }
+        
+        /* Classe pour rendre le contenu principal visible après la fermeture du modal */
+        .content-visible #navbar,
+        .content-visible #main-content,
+        .content-visible .footer-bottom {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 1s ease, visibility 0s;
+        }
+
+        /* ==================================================
+        Styles pour la slide d'introduction (Modal) (Ajouté)
+        ================================================== */
+        
+        /* Le conteneur modal en plein écran */
+        #intro-slide-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow: hidden;
+            
+            visibility: hidden;
+            opacity: 0;
+            transition: background-color 0.4s ease, visibility 0s linear 0.6s, opacity 0.6s ease;
+            pointer-events: none;
+        }
+
+        /* État du modal ouvert */
+        #intro-slide-modal.show {
+            background-color: rgba(0, 0, 0, 0.95);
+            visibility: visible;
+            opacity: 1;
+            transition: background-color 0.4s ease, visibility 0s linear, opacity 0.6s ease;
+            pointer-events: auto;
+        }
+
+        /* Conteneur de l'image : DÉMARRAGE DE L'ANIMATION */
+        .modal-content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            transform: translateX(-100%);
+            opacity: 0;
+            
+            transition: none;
+        }
+        
+        /* Déclenchement de l'animation d'ouverture */
+        .modal-content-wrapper.loaded {
+            transform: translateX(0);
+            opacity: 1;
+            
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out;
+        }
+
+        /* État "fermeture" du contenu : se déplace vers la droite */
+        #intro-slide-modal.closing .modal-content-wrapper {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out;
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        /* L'image elle-même */
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            border: 2px solid #00ffff;
+        }
+
+        /* Bouton de fermeture */
+        .close-btn {
+            position: absolute;
+            top: 90px;
+            left: 20px;
+            color: #ffffff;
+            font-size: 35px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 1010;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+            transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+
+        .close-btn:hover {
+            background: #00ffff;
+            color: #0a141e;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        /* Responsive pour le bouton de fermeture sur petit écran */
+        @media (max-width: 500px) {
+            .close-btn {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 25px;
+            }
+        }
+        
+        /* Styles existants pour le bloc de présentation */
+        .presentation-text-container {
+            max-width: 1000px;
+            margin: 100px auto 50px auto;
+            display: block;
+            padding: 30px;
+            background-color: rgba(10, 20, 30, 0.8);
+            border-left: 5px solid #00ffff;
+            color: #e0ffff;
+            line-height: 1.6;
+            font-family: 'Exo 2', sans-serif;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            text-align: justify;
+            border-radius: 8px; 
+        }
+        .presentation-text-container h3 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .presentation-text-container h4 {
+            color: #00ffff;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .presentation-text-container p {
+            margin-bottom: 25px;
+        }
+
+        /* Nouveaux styles pour l'intégration de la simulation Godot */
+        .simulation-embed-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* Ratio 16:9 */
+            height: 0;
+            overflow: hidden;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            background-color: #000;
+            border-radius: 6px;
+        }
+
+        .simulation-embed-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Conteneur pour le bouton Plein Écran */
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+
+        /* Style du bouton néon */
+        .neon-button {
+            background-color: transparent;
+            border: 2px solid #ff00ff; /* Couleur néon différente pour le bouton */
+            color: #ff00ff;
+            padding: 10px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+            border-radius: 5px;
+            letter-spacing: 1px;
+        }
+
+        .neon-button:hover {
+            background-color: #ff00ff;
+            color: #1a1a2e; /* Couleur sombre au survol */
+            box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+        }
+
+        /* Style pour l'alerte personnalisée (remplace alert()) */
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #ff00ff; /* Neon Pink/Magenta pour l'erreur */
+            color: #1a1a2e;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #ff00ff;
+            z-index: 10000;
+            font-family: 'Exo 2', sans-serif;
+            text-align: center;
+            max-width: 80vw;
+        }
+        
+        /* Ajustement sur mobile */
+        @media (max-width: 1050px) {
+            .presentation-text-container {
+                max-width: 95%;
+                padding: 15px;
+                margin-top: 60px;
+            }
+            .simulation-embed-wrapper {
+                padding-bottom: 75%; 
+            }
+            .neon-button {
+                font-size: 0.9rem;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body class="content-hidden"> <canvas id="neural-bg"></canvas>
+
+    <div id="intro-slide-modal">
+        <button class="close-btn" onclick="closeIntroSlide()">&times;</button>
+        <div class="modal-content-wrapper">
+            <img src="img/slide3.png" alt="Introduction Slide" class="modal-image">
+        </div>
+    </div>
+
+
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-container">
+                <img src="img/logo.png" alt="Logo Impact" style="width: 10%; margin-top: -10px;">
+                <span class="logo-text" href="presentation.html">Impact</span>
+            </a>
+            
+            <div class="mobile-menu-toggle" id="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul>
+                    <li><a href="presentation.html">Presentation</a></li>
+                    <li><a href="science_applied.html">Science Based</a></li>
+                    <li><a href="simulation.html">Simulation</a></li>
+                    <li><a href="What_Will_Happen.html">Impact Analysis</a></li>
+                    <li><a href="eligius.html">Eligius Mission</a></li>
+                    <li><a href="team.html">OUR TEAM</a></li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <main id="main-content">
+
+        <div class="presentation-text-container">
+            <h3 class="glitch" data-text="SIMULATION" style="font-size:50px;">SIMULATION</h3>
+            
+            <div class="button-container">
+                <button id="fullscreenButton" class="neon-button">LANCER EN PLEIN ÉCRAN</button>
+            </div>
+            
+            <div class="simulation-embed-wrapper">
+                <iframe
+                    id="godotIframe"
+                    src="../ASTEROID/index.html"
+                    title="Godot Asteroid Simulation"
+                    frameborder="0"
+                    allowfullscreen
+                    mozallowfullscreen
+                    webkitallowfullscreen
+                ></iframe>
+            </div>
+
+        </div>
+        
+    </main>
+    
+    <div class="footer-bottom" style="padding-top: 15px; padding-bottom: 20px;">
+        <p> &copy; 2025 - NASA INTERNATIONAL SPACE APPS CHALLENGE </p>
+    </div>
+
+<script src="tooplate-neural-scripts.js"></script>
+
+<script>
+// Variables pour le modal
+const introModal = document.getElementById('intro-slide-modal');
+const modalContentWrapper = document.querySelector('.modal-content-wrapper');
+
+// Fonction pour afficher une alerte personnalisée (conservée pour le plein écran)
+function showCustomAlert(message) {
+    const existingAlert = document.querySelector('.custom-alert');
+    if (existingAlert) existingAlert.remove();
+
+    const alertBox = document.createElement('div');
+    alertBox.classList.add('custom-alert');
+    alertBox.innerHTML = `<strong>Erreur:</strong><p>${message}</p><button onclick="this.parentNode.remove()" class="neon-button" style="margin-top: 15px; background-color: transparent; border-color: #00ffff; color: #00ffff;">OK</button>`;
+    document.body.appendChild(alertBox);
+}
+
+// Fonction pour fermer la slide d'introduction (Ajouté)
+function closeIntroSlide() {
+    const contentAnimationDuration = 600; 
+    
+    // 1. Déclenche l'apparition progressive du contenu principal (1 seconde de fondu)
+    document.body.classList.add('content-visible');
+
+    // 2. Déclenchez l'animation de fermeture du modal
+    modalContentWrapper.classList.remove('loaded');
+    introModal.classList.add('closing');
+    introModal.classList.remove('show');
+
+    // 3. Masquez complètement le modal
+    setTimeout(() => {
+        introModal.style.visibility = 'hidden';
+        introModal.classList.remove('closing');
+        
+        // Réinitialiser la position du contenu du modal
+        modalContentWrapper.style.transition = 'none';
+        modalContentWrapper.style.transform = 'translateX(-100%)';
+        modalContentWrapper.style.opacity = '0';
+        
+    }, contentAnimationDuration);
+}
+
+// Fonction pour demander le plein écran sur l'iframe (Conservé)
+function goFullScreen() {
+    const iframe = document.getElementById('godotIframe');
+    
+    if (iframe && iframe.requestFullscreen) {
+        iframe.requestFullscreen().catch(err => {
+            showCustomAlert("L'activation du mode plein écran a échoué. Détails : " + err.message);
+        });
+    } else {
+        showCustomAlert("Votre navigateur ne supporte pas la fonction plein écran pour les éléments intégrés.");
+    }
+}
+
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. DÉCLENCHEMENT DU MODAL D'INTRODUCTION (Ajouté)
+    introModal.classList.add('show');
+    
+    setTimeout(() => {
+        modalContentWrapper.classList.add('loaded');
+    }, 750);
+    
+    // 2. ATTENTION: Le script de gestion du bouton plein écran a été déplacé ici
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    if (fullscreenButton) {
+        fullscreenButton.addEventListener('click', goFullScreen);
+    }
+});
+</script>
+
+</body>
+</html>

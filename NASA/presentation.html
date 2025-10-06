@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="img/logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/logo.png">
+
+  <link rel="shortcut icon" href="img/logo.png" type="image/png">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="img/logo.png">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impact - Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Exo+2:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
+  <link href="tooplate-neural-style.css" rel="stylesheet">
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+   
+    /* ==================================================
+    MODIFICATIONS POUR LE CONTENU PRINCIPAL MASQUÉ
+    ================================================== */
+   
+    /* Le contenu principal (main + navbar + footer) */
+    #navbar, main, .footer-bottom {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 1s ease, visibility 0s linear 1s; /* Délai pour visibility */
+    }
+   
+    /* Classe pour rendre le contenu principal visible après la fermeture du modal */
+    .content-visible #navbar,
+    .content-visible main,
+    .content-visible .footer-bottom {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 1s ease, visibility 0s;
+    }
+
+    /* Le main doit occuper l'espace même invisible */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Styles du slider de cartes (MODIFIÉ: Marge retirée) */
+    .presentation-slider-container {
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .slider-wrapper {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      /* ÉTEND la largeur du wrapper pour contenir toutes les cartes de 100% */
+      width: 100%; 
+    }
+
+    .slider-card {
+      /* FIX: flex: 0 0 100% fait que la carte prend 100% de la largeur */
+      flex: 0 0 100%;
+      /* BUG FIX: SUPPRIMER la marge latérale car elle cause le décalage. */
+      /* Si vous voulez de l'espace, ajoutez-le avec le padding de la carte */
+      /* margin: 0 10px; */ 
+      padding: 30px;
+      background-color: rgba(10, 20, 30, 0.7);
+      border-left: 5px solid #00ffff;
+      color: #e0ffff;
+      line-height: 1.6;
+      font-family: 'Exo 2', sans-serif;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      text-align: justify;
+      box-sizing: border-box;
+    }
+        /* Pour simuler un espace visuel entre les cartes, vous pouvez ajouter un padding/margin 
+           aux cartes et ajuster le flex, mais la méthode 100% sans marge est la plus simple */
+
+    .slider-card h4 {
+      color: #00ffff;
+      font-family: 'Orbitron', sans-serif;
+      margin-bottom: 15px;
+      text-align: center;
+      font-size: 30px;
+    }
+
+    /* Boutons flèches (inchangés) */
+    .slider-btn {
+      position: relative;
+      background-color: rgba(0,255,255,0.3);
+      border: none;
+      color: #e0ffff;
+      font-size: 30px;
+      padding: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .slider-btn:hover {
+      background-color: rgba(0,255,255,0.6);
+    }
+
+    /* Positionnement à l'extérieur du slider (inchangé) */
+    .slider-btn.prev {
+      margin-right: 10px;
+    }
+
+    .slider-btn.next {
+      margin-left: 10px;
+    }
+
+    #navbar .logo-container img {
+      width: 10%;
+      margin-top: -10px;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding: 15px 0 20px 0;
+      background-color: rgba(0,0,0,0.5);
+      color: #e0ffff;
+    }
+
+    /* Conteneur flèches + slider (inchangé) */
+    .slider-container-with-buttons {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Responsive pour padding sur mobile (inchangé) */
+    @media (max-width: 768px) {
+      .slider-card {
+        padding: 20px;
+      }
+    }
+   
+    /* ==================================================
+    Styles pour la slide d'introduction (Modal)
+    ==================================================
+    */
+   
+    /* Le conteneur modal en plein écran */
+    #intro-slide-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      overflow: hidden;
+     
+      visibility: hidden;
+      opacity: 0;
+      transition: background-color 0.4s ease, visibility 0s linear 0.6s, opacity 0.6s ease;
+    }
+
+    /* État du modal ouvert */
+    #intro-slide-modal.show {
+      background-color: rgba(0, 0, 0, 0.95);
+      visibility: visible;
+      opacity: 1;
+      transition: background-color 0.4s ease, visibility 0s linear, opacity 0.6s ease;
+      pointer-events: auto;
+    }
+
+    /* Conteneur de l'image : DÉMARRAGE DE L'ANIMATION (ajusté) */
+    .modal-content-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+     
+      transform: translateX(-100%);
+      opacity: 0;
+     
+      transition: none;
+    }
+   
+    /* Déclenchement de l'animation d'ouverture après le délai de 1s */
+    .modal-content-wrapper.loaded {
+      transform: translateX(0);
+      opacity: 1;
+     
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out;
+    }
+
+    /* État "fermeture" du contenu : se déplace vers la droite */
+    #intro-slide-modal.closing .modal-content-wrapper {
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out;
+      transform: translateX(100%);
+      opacity: 0;
+    }
+   
+    /* L'image elle-même (inchangée) */
+    .modal-image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+      border: 2px solid #00ffff;
+    }
+
+    /* Bouton de fermeture (inchangé) */
+    .close-btn {
+      position: absolute;
+      top: 90px;
+      left: 20px;
+      color: #ffffff;
+      font-size: 35px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 1010;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid #00ffff;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 1;
+      transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+    }
+
+    .close-btn:hover {
+      background: #00ffff;
+      color: #0a141e;
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #00ffff;
+    }
+   
+    /* Responsive pour le bouton de fermeture sur petit écran (inchangé) */
+    @media (max-width: 500px) {
+      .close-btn {
+        top: 15px;
+        left: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 25px;
+      }
+    }
+  </style>
+</head>
+<body class="content-hidden"> <canvas id="neural-bg"></canvas>
+
+  <div id="intro-slide-modal">
+    <button class="close-btn" onclick="closeIntroSlide()">&times;</button>
+    <div class="modal-content-wrapper">
+      <img src="img/slide1.png" alt="Introduction Slide" class="modal-image">
+    </div>
+  </div>
+ 
+  <nav id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="logo-container">
+        <img src="img/logo.png" alt="Description du logo">
+        <span class="logo-text">Impact</span>
+      </a>
+     
+      <div class="mobile-menu-toggle" id="mobile-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+     
+      <div class="nav-menu" id="nav-menu">
+        <ul>
+          <li><a href="presentation.html">Presentation</a></li>
+          <li><a href="science_applied.html">Science Based</a></li>
+          <li><a href="simulation.html">Simulation</a></li>
+          <li><a href="What_Will_Happen.html">Impact Analysis</a></li>
+          <li><a href="eligius.html">Eligius Mission</a></li>
+          <li><a href="team.html">OUR TEAM</a></li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+ 
+  <main id="main-content">
+
+    <div class="slider-container-with-buttons">
+      <button class="slider-btn prev" onclick="prevSlide()">&#10094;</button>
+
+      <div class="presentation-slider-container">
+        <div class="slider-wrapper" id="slider-wrapper">
+          <div class="slider-card">
+            <h4>Project Impact - Context</h4>
+            <p>
+              During the <strong>NASA Space Apps Challenge 2025</strong>, our team participated in the "Meteor Madness" challenge, which focused on creating tools to help the public and decision-makers understand and mitigate the risks of near-Earth asteroids like "Impactor-2025." The challenge required integrating NASA and USGS datasets and scientific rigor to simulate asteroid impacts and evaluate potential mitigation strategies, all while making the information accessible and engaging for a wide audience.
+            </p>
+          </div>
+
+          <div class="slider-card">
+            <h4>Simulation of a collision between <br> a meteorite and Earth</h4>
+            <p>
+              For our first solution, we developed a <strong>Godot-based simulation</strong> that allows users to interactively model collisions between Earth and a parametrizable asteroid. Users can adjust variables such as size, velocity, and trajectory, and then observe the resulting impacts in real time. This approach provides a realistic and immersive experience, making complex physics and environmental consequences understandable and visually engaging.
+            </p>
+          </div>
+
+          <div class="slider-card">
+            <h4>Explain what will happen if a meteorite hit the Earth at a point</h4>
+            <p>
+              Our second solution leverages a <strong>large language model (LLM)</strong> to explain what would happen if a user, define asteroid were to strike Earth. Users can create their own scenarios by specifying asteroid characteristics and receive detailed, comprehensible explanations of potential effects, including environmental and societal consequences. This LLM turns scientific data into an accessible educational tool, allowing everyone to explore "what-if" scenarios in a highly interactive way.
+            </p>
+          </div>
+          <div class="slider-card">
+            <h4>Save the Earth ! The Eligius Mission</h4>
+            <p>
+              To make the concept of planetary defense accessible, we designed <strong>"Eligius Mission,"</strong> an educational mini-game inspired by real-world deflection missions. The player takes control of a specialized spacecraft, challenged to execute a maneuver (such as a kinetic impact or a gravity tractor pull) to divert a threat-level asteroid before it impacts Earth. This game provides a fun and interactive way to grasp the principles of orbital mechanics and the physics of asteroid deflection, turning complex science into an immediate, engaging experience.
+
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <button class="slider-btn next" onclick="nextSlide()">&#10095;</button>
+    </div>
+
+  </main>
+
+  <div class="footer-bottom">
+    <p>&copy; 2025 - NASA INTERNATIONAL SPACE APPS CHALLENGE</p>
+  </div>
+
+<script src="tooplate-neural-scripts.js"></script>
+
+<script>
+let sliderIndex = 0;
+const slides = document.querySelectorAll('.slider-card');
+const wrapper = document.getElementById('slider-wrapper');
+const introModal = document.getElementById('intro-slide-modal');
+const modalContentWrapper = document.querySelector('.modal-content-wrapper');
+
+// Afficher la slide d'introduction au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+  // Le contenu principal est masqué par défaut (par le CSS)
+ 
+  // 1. Le fond noir et le modal apparaissent immédiatement
+  introModal.classList.add('show');
+ 
+  // 2. Déclenche l'animation du contenu du modal après un délai de 1000ms (1 seconde)
+  setTimeout(() => {
+    modalContentWrapper.classList.add('loaded');
+  }, 750);
+});
+
+// Fonction pour fermer la slide d'introduction
+function closeIntroSlide() {
+  const contentAnimationDuration = 600; // Durée d'animation du contenu du modal
+  const mainContentFadeInDuration = 1000; // Durée du fondu du contenu principal (1 seconde)
+ 
+  // 1. Déclenche l'apparition progressive du contenu principal
+  document.body.classList.add('content-visible');
+
+  // 2. Déclenchez l'animation de fermeture du modal (glissement du contenu vers la droite)
+  modalContentWrapper.classList.remove('loaded');
+  introModal.classList.add('closing');
+  introModal.classList.remove('show');
+
+  // 3. Masquez complètement le modal une fois l'animation de fermeture du contenu terminée
+  setTimeout(() => {
+    introModal.style.visibility = 'hidden';
+    introModal.classList.remove('closing');
+   
+    // Réinitialiser la position du contenu du modal pour la prochaine ouverture
+    modalContentWrapper.style.transition = 'none';
+    modalContentWrapper.style.transform = 'translateX(-100%)';
+    modalContentWrapper.style.opacity = '0';
+   
+  }, contentAnimationDuration);
+}
+
+
+// Fonctions du slider existantes
+function showSlide(index) {
+  if(index < 0) sliderIndex = slides.length - 1;
+  else if(index >= slides.length) sliderIndex = 0;
+  else sliderIndex = index;
+    
+    // Le calcul de 100% fonctionne parfaitement maintenant que les marges
+    // ont été supprimées des cartes individuelles.
+  wrapper.style.transform = `translateX(-${sliderIndex * 100}%)`;
+}
+
+function nextSlide() {
+  showSlide(sliderIndex + 1);
+}
+
+function prevSlide() {
+  showSlide(sliderIndex - 1);
+}
+</script>
+
+</body>
+</html>

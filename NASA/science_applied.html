@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="img/logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/logo.png">
+
+    <link rel="shortcut icon" href="img/logo.png" type="image/png">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="img/logo.png">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact - Papers</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Exo+2:wght@300;400;500;600;700&family=Audiowide&display=swap" rel="stylesheet">
+    <link href="tooplate-neural-style.css" rel="stylesheet">
+    <style>
+        /* ==================================================
+        MODIFICATIONS POUR LE CONTENU PRINCIPAL MASQUÉ
+        ================================================== */
+
+        /* Le contenu principal (navbar + main + footer) */
+        #navbar, #main-content, .footer-bottom {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease, visibility 0s linear 1s; /* Délai pour visibility */
+        }
+        
+        /* Classe pour rendre le contenu principal visible après la fermeture du modal */
+        .content-visible #navbar,
+        .content-visible #main-content,
+        .content-visible .footer-bottom {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 1s ease, visibility 0s;
+        }
+
+        /* ==================================================
+        Styles pour la slide d'introduction (Modal)
+        ================================================== */
+        
+        /* Le conteneur modal en plein écran */
+        #intro-slide-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow: hidden;
+            
+            visibility: hidden;
+            opacity: 0;
+            transition: background-color 0.4s ease, visibility 0s linear 0.6s, opacity 0.6s ease;
+            pointer-events: none;
+        }
+
+        /* État du modal ouvert */
+        #intro-slide-modal.show {
+            background-color: rgba(0, 0, 0, 0.95);
+            visibility: visible;
+            opacity: 1;
+            transition: background-color 0.4s ease, visibility 0s linear, opacity 0.6s ease;
+            pointer-events: auto;
+        }
+
+        /* Conteneur de l'image : DÉMARRAGE DE L'ANIMATION */
+        .modal-content-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            transform: translateX(-100%);
+            opacity: 0;
+            
+            transition: none;
+        }
+        
+        /* Déclenchement de l'animation d'ouverture */
+        .modal-content-wrapper.loaded {
+            transform: translateX(0);
+            opacity: 1;
+            
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out;
+        }
+
+        /* État "fermeture" du contenu : se déplace vers la droite */
+        #intro-slide-modal.closing .modal-content-wrapper {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out;
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        /* L'image elle-même */
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            border: 2px solid #00ffff;
+        }
+
+        /* Bouton de fermeture */
+        .close-btn {
+            position: absolute;
+            top: 90px;
+            left: 20px;
+            color: #ffffff;
+            font-size: 35px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 1010;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+            transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+
+        .close-btn:hover {
+            background: #00ffff;
+            color: #0a141e;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #00ffff;
+        }
+        
+        /* Responsive pour le bouton de fermeture sur petit écran */
+        @media (max-width: 500px) {
+            .close-btn {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 25px;
+            }
+        }
+
+        /* Styles du contenu existant (PDF) */
+        .presentation-text-container {
+            max-width: 800px;
+            margin: 100px auto 50px auto;
+            display: block;
+            padding: 30px;
+            background-color: rgba(10, 20, 30, 0.7);
+            border-left: 5px solid #00ffff;
+            color: #e0ffff;
+            line-height: 1.6;
+            font-family: 'Exo 2', sans-serif;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            text-align: justify;
+        }
+        .presentation-text-container h3 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .presentation-text-container h4 {
+            color: #00ffff;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .presentation-text-container p {
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body class="content-hidden"> <canvas id="neural-bg"></canvas>
+
+    <div id="intro-slide-modal">
+        <button class="close-btn" onclick="closeIntroSlide()">&times;</button>
+        <div class="modal-content-wrapper">
+            <img src="img/slide2.png" alt="Introduction Slide" class="modal-image">
+        </div>
+    </div>
+
+
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo-container">
+
+                <img src="img/logo.png" alt="Description du logo" style="width: 10%; margin-top: -10px;">
+                <span class="logo-text" href="presentation.html">Impact</span>
+            </a>
+            
+            <div class="mobile-menu-toggle" id="mobile-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul>
+                    <li><a href="presentation.html">Presentation</a></li>
+                    <li><a href="science_applied.html">Science Based</a></li>
+                    <li><a href="simulation.html">Simulation</a></li>
+                    <li><a href="What_Will_Happen.html">Impact Analysis</a></li>
+                    <li><a href="eligius.html">Eligius Mission</a></li>
+                    <li><a href="team.html">OUR TEAM</a></li>
+
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <main id="main-content">
+
+        <div class="presentation-text-container">
+            <h3 class="glitch" data-text="SCIENCE APPLIED" style="font-size:50px;">SCIENCE APPLIED</h3>
+
+            <div style="height: 100vh; width: 100%;">
+                <embed src="SCIENCE_APPLIED.pdf" type="application/pdf" width="100%" height="100%">
+            </div>
+
+        </div>
+        
+    </main>
+    <div class="footer-bottom" style="padding-top: 15px; padding-bottom: 20px;">
+        <p> &copy; 2025 - NASA INTERNATIONAL SPACE APPS CHALLENGE </p>
+    </div>
+
+<script src="tooplate-neural-scripts.js"></script>
+
+<script>
+const introModal = document.getElementById('intro-slide-modal');
+const modalContentWrapper = document.querySelector('.modal-content-wrapper');
+
+// Afficher la slide d'introduction au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Le fond noir et le modal apparaissent
+    introModal.classList.add('show');
+    
+    // 2. Déclenche l'animation du contenu du modal après un délai de 750ms
+    setTimeout(() => {
+        modalContentWrapper.classList.add('loaded');
+    }, 750);
+});
+
+// Fonction pour fermer la slide d'introduction
+function closeIntroSlide() {
+    const contentAnimationDuration = 600; 
+    
+    // 1. Déclenche l'apparition progressive du contenu principal (1 seconde de fondu)
+    document.body.classList.add('content-visible');
+
+    // 2. Déclenchez l'animation de fermeture du modal (glissement du contenu vers la droite)
+    modalContentWrapper.classList.remove('loaded');
+    introModal.classList.add('closing');
+    introModal.classList.remove('show');
+
+    // 3. Masquez complètement le modal une fois l'animation de fermeture du contenu terminée
+    setTimeout(() => {
+        introModal.style.visibility = 'hidden';
+        introModal.classList.remove('closing');
+        
+        // Réinitialiser la position du contenu du modal
+        modalContentWrapper.style.transition = 'none';
+        modalContentWrapper.style.transform = 'translateX(-100%)';
+        modalContentWrapper.style.opacity = '0';
+        
+    }, contentAnimationDuration);
+}
+</script>
+
+</body>
+</html>
